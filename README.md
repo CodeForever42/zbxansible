@@ -1,2 +1,2 @@
 # zbxansible
-some ansible tasks for zabbşx
+some ansible tasks for zabbix
