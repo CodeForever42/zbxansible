@@ -1,0 +1,20 @@
+---
+plugin: netbox.netbox.nb_inventory
+api_endpoint: hhtps://enpoint.netbox.url
+token: MY_TOKEN
+verbosity: 2
+validate_certs: false
+group_by:
+  #- tenants
+  #- device_roles
+  - tags
+  #- sites
+  #- is_virtual
+  #- platforms
+compose:
+  device_id: id
+
+query_filters:
+  - tag: tag
+  - site: site
+  #- platform: windows 
