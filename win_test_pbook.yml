@@ -25,7 +25,7 @@
     #  -------- Windows Opersayonları ------------  
     
     - gen_winPing       # Windows Makinaya Ping Atar
-    - win_WinUpdSecCrt  # Windows Critical, Sec. ve Rollup Update (reboot gerekirse takvimler)
+    #- win_WinUpdSecCrt  # Windows Critical, Sec. ve Rollup Update (reboot gerekirse takvimler)
     #- win_schReboot     # Belirtilen Zamana(reboot_time) tek seferlik Reboot Task oluşturur.
   
     

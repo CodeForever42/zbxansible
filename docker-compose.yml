@@ -1,0 +1,11 @@
+services:
+  ansible-win-updater:
+    image: ansible-runner:latest
+    container_name: ansible_test
+    volumes:
+      - .:/ansible
+    # Konteynerin açık kalması ve içine girebilmemiz için
+    tty: true
+    stdin_open: true
+    # Entrypoint'i bash yaparak otomatik çalışmasını durduruyoruz
+    entrypoint: ["/bin/bash"]
