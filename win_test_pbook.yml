@@ -1,0 +1,31 @@
+---
+# Windows Test Playbook 
+# Mustafa KALAYCI @Hikmet Bilgisayar
+# V 1.0 | 13/03/2026
+
+# Sample runing command: 
+# ansible-playbook -i inventory/xxx_hosts.yml win_test_pbook.yml -e 'target=LOG ' --ask-vault-password
+
+
+#--------------------------------------------------------------
+#--------------------WINDOWS HOSTLAR---------------------------
+#--------------------------------------------------------------
+
+
+- name: MÜŞTERİ Windows Hostlar için Görevler
+  hosts: "{{ target }}"
+  gather_facts: no
+#  become: yes
+
+  vars:
+    target_date: "28/02/2026"  # Sabit format (DD/MM/YYYY)
+    target_time: "02:30"       # Sabit saat formatı
+  
+  roles:
+    #  -------- Windows Opersayonları ------------  
+    
+    - gen_winPing       # Windows Makinaya Ping Atar
+    - win_WinUpdSecCrt  # Windows Critical, Sec. ve Rollup Update (reboot gerekirse takvimler)
+    #- win_schReboot     # Belirtilen Zamana(reboot_time) tek seferlik Reboot Task oluşturur.
+  
+    

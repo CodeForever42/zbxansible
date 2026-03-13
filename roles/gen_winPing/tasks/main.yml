@@ -2,4 +2,4 @@
 # tasks file for winping
 - name: Ping Atılıyor
   win_ping:
-  when: hostvars.localhost.vpn_check.rc == 0      
+  
