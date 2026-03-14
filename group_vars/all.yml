@@ -1,0 +1,30 @@
+---
+
+# Domain üyesi olanlar için 
+domain_user: "otomasyon@domain.local" #<-------------- account
+domain_transport: ntlm
+
+# Domain üyesi olmayanlar için
+non_domain_user: "otomasyon" #<-------------- account
+non_domain_transport: basic
+
+ansible_user: "{{ domain_user if 'domain_member' in hostvars[inventory_hostname].tags else non_domain_user }}"
+ansible_winrm_transport: "{{ domain_transport if 'domain_member' in hostvars[inventory_hostname].tags else non_domain_transport }}"
+
+
+ansible_password: 
+  !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          11111111111111111111111111111111111111111111111111111111111111111111111111111111
+          6136346662383633656235333263666334626264303633630a643637646237323366303931333731
+          31646234616366353932303864393335663665646462366465323433363336626165653735343462
+          6634623739616530390a666537366434313738323933623138616662366239636166623937393461
+          6665
+ansible_port: 5986
+ansible_connection: winrm
+ansible_winrm_scheme: https
+ansible_winrm_server_cert_validation: ignore
+#ansible_winrm_kerberos_delegation: true
+
+#Zabbix 
+zabbix_server: "PROXY.IP.Add.ress"
