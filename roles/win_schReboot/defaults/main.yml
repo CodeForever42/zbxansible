@@ -1,0 +1,6 @@
+---
+# Zabbix'ten r_after_days gelmezse 1 gün sonrayı baz al
+r_after_days: 1
+# Zabbix'ten r_time gelmezse 02:30'u baz al
+r_time: "02:30"
+target_task_name: "Zabbix_Planned_Reboot"

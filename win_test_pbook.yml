@@ -12,20 +12,22 @@
 #--------------------------------------------------------------
 
 
+
 - name: MÜŞTERİ Windows Hostlar için Görevler
   hosts: "{{ target }}"
-  gather_facts: no
-#  become: yes
+  gather_facts: yes
 
-  vars:
-    target_date: "28/02/2026"  # Sabit format (DD/MM/YYYY)
-    target_time: "02:30"       # Sabit saat formatı
-  
-  roles:
-    #  -------- Windows Opersayonları ------------  
-    
-    - gen_winPing       # Windows Makinaya Ping Atar
-    #- win_WinUpdSecCrt  # Windows Critical, Sec. ve Rollup Update (reboot gerekirse takvimler)
-    #- win_schReboot     # Belirtilen Zamana(reboot_time) tek seferlik Reboot Task oluşturur.
-  
-    
+  tasks:
+    - name: Hedef Tarihi Hesapla
+      set_fact:
+        # Değişkenleri doğrudan defaults/main.yml'den çeker
+        target_date: "{{ (ansible_date_time.epoch | int + (r_after_days | int * 86400)) | strftime('%d/%m/%Y') }}"
+        target_time: "{{ r_time }}"
+
+    - name: Operasyon Rollerim
+      include_role:
+        name: "{{ item }}"
+      loop:
+        - gen_winPing
+        #- win_WinUpdSecCrt
+        - win_schReboot

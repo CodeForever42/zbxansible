@@ -1,0 +1,15 @@
+---
+- name: Tek seferlik reboot görevi oluştur
+  ansible.windows.win_command: >
+    schtasks /create /tn "{{ target_task_name }}" 
+    /tr "shutdown.exe /r /f /t 60 /c 'Zabbix tarafindan planlanmis reboot'" 
+    /sc once 
+    /sd {{ target_date }} 
+    /st {{ target_time }} 
+    /ru SYSTEM /f
+  register: reboot_task
+
+- name: Sonucu Bildir
+  debug:
+    msg: "Görev '{{ target_task_name }}' başarıyla {{ target_date }} - {{ target_time }} için oluşturuldu."
+  when: reboot_task.rc == 0
