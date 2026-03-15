@@ -1,15 +1,21 @@
 ---
-- name: Tek seferlik reboot görevi oluştur
-  ansible.windows.win_command: >
-    schtasks /create /tn "{{ target_task_name }}" 
-    /tr "shutdown.exe /r /f /t 60 /c 'Zabbix tarafindan planlanmis reboot'" 
-    /sc once 
-    /sd {{ target_date }} 
-    /st {{ target_time }} 
-    /ru SYSTEM /f
-  register: reboot_task
+# tasks file for win_schReboot
+- name: Hedef Tarihi Rol İçinde Hesapla
+  set_fact:
+    target_date: "{{ (ansible_date_time.epoch | int + (r_after_days | int * 86400)) | strftime('%d/%m/%Y') }}"
+    target_time: "{{ r_time }}"
 
-- name: Sonucu Bildir
-  debug:
-    msg: "Görev '{{ target_task_name }}' başarıyla {{ target_date }} - {{ target_time }} için oluşturuldu."
-  when: reboot_task.rc == 0
+- name: Zamanlanmış Yeniden Başlatma Görevi Oluştur
+  community.windows.win_scheduled_task:
+    name: "Ansible_Maintenance_Reboot"
+    description: "Update sonrasi planlanmis reboot"
+    actions:
+      - path: 'shutdown.exe'
+        arguments: '/r /f /t 0'
+    triggers:
+      - type: daily
+        # Windows formatı için / karakterini - ile değiştiriyoruz
+        start_boundary: "{{ target_date | regex_replace('/', '-') }}T{{ target_time }}:00"
+    username: SYSTEM
+    state: present
+    enabled: yes

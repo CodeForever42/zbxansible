@@ -1,0 +1,20 @@
+---
+# tasks file for win_WinUpdSecCrt
+- name: Install all security, critical Updates 
+  ansible.windows.win_updates:
+    category_names:
+      - SecurityUpdates
+      - CriticalUpdates
+      - UpdateRollups
+    reboot: False
+    log_path: C:\wUpdLog\ansible_wu.txt
+  register: returned
+
+- debug:
+    var:
+      returned.reboot_required
+
+- name: Reboot gerekiyorsa Reboot görevi çalıştır
+  include_role:
+    name: win_schReboot
+  when: returned.reboot_required | default(false)
