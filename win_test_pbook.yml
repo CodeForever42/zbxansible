@@ -1,11 +1,10 @@
 ---
 # Windows Test Playbook 
 # Mustafa KALAYCI @Hikmet Bilgisayar
-# V 1.0 | 13/03/2026
+# V 1.01 | 15/03/2026
 
 # Sample runing command: 
-# ansible-playbook -i inventory/xxx_hosts.yml win_test_pbook.yml -e 'target=LOG ' --ask-vault-password
-
+# ansible-playbook win_test_pbook.yml -i inventory/xxx_hosts.yml --limit "THOST" -e "target=THOST" --vault-password-file .vault_pass
 
 #--------------------------------------------------------------
 #--------------------WINDOWS HOSTLAR---------------------------
@@ -18,16 +17,10 @@
   gather_facts: yes
 
   tasks:
-    - name: Hedef Tarihi Hesapla
-      set_fact:
-        # Değişkenleri doğrudan defaults/main.yml'den çeker
-        target_date: "{{ (ansible_date_time.epoch | int + (r_after_days | int * 86400)) | strftime('%d/%m/%Y') }}"
-        target_time: "{{ r_time }}"
-
     - name: Operasyon Rollerim
       include_role:
         name: "{{ item }}"
       loop:
         - gen_winPing
         #- win_WinUpdSecCrt
-        - win_schReboot
+        #- win_schReboot

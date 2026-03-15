@@ -1,5 +1,6 @@
 ---
 # tasks file for winping
+# V0.0
 - name: Ping Atılıyor
   win_ping:
   
