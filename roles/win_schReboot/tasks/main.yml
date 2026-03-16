@@ -1,21 +1,29 @@
 ---
-# tasks file for win_schReboot
-- name: Hedef Tarihi Rol İçinde Hesapla
-  set_fact:
-    target_date: "{{ (ansible_date_time.epoch | int + (r_after_days | int * 86400)) | strftime('%d/%m/%Y') }}"
-    target_time: "{{ r_time }}"
+- name: Sunucu Tarih Formatini Tespit Et
+  ansible.windows.win_shell: |
+    $pattern = (Get-Culture).DateTimeFormat.ShortDatePattern
+    if ($pattern -eq "M/d/yyyy" -or $pattern -eq "MM/dd/yyyy") { Write-Host -NoNewline "US" }
+    elseif ($pattern -eq "d.M.yyyy" -or $pattern -eq "dd.MM.yyyy") { Write-Host -NoNewline "TR_EU" }
+    else { Write-Host -NoNewline "US" } # Belirsizse senin sunucunun istediği US formatına zorla
+  register: server_locale
 
-- name: Zamanlanmış Yeniden Başlatma Görevi Oluştur
-  community.windows.win_scheduled_task:
-    name: "Ansible_Maintenance_Reboot"
-    description: "Update sonrasi planlanmis reboot"
-    actions:
-      - path: 'shutdown.exe'
-        arguments: '/r /f /t 0'
-    triggers:
-      - type: daily
-        # Windows formatı için / karakterini - ile değiştiriyoruz
-        start_boundary: "{{ target_date | regex_replace('/', '-') }}T{{ target_time }}:00"
-    username: SYSTEM
-    state: present
-    enabled: yes
+- name: Formata Gore Tarih Hesapla
+  set_fact:
+    target_date: >-
+      {% if server_locale.stdout | trim == 'US' -%}
+        {{ '%m/%d/%Y' | strftime( (ansible_date_time.epoch | int) + (r_after_days | int * 86400) ) }}
+      {%- elif server_locale.stdout | trim == 'TR_EU' -%}
+        {{ '%d.%m.%Y' | strftime( (ansible_date_time.epoch | int) + (r_after_days | int * 86400) ) }}
+      {%- else -%}
+        {{ '%m/%d/%Y' | strftime( (ansible_date_time.epoch | int) + (r_after_days | int * 86400) ) }}
+      {%- endif %}
+    target_time: "{{ r_time | trim }}"
+
+- name: Tek seferlik reboot görevi oluştur
+  ansible.windows.win_command: >
+    schtasks /create /tn "Ansible_Reboot" 
+    /tr "shutdown.exe /r /f /t 0" 
+    /sc once 
+    /sd {{ target_date | trim }} 
+    /st {{ target_time | trim }} 
+    /ru SYSTEM /f

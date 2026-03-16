@@ -1,6 +1,6 @@
 services:
-  ansible-win-updater:
-    image: ansible-runner:latest
+  ansible-runner:
+    image: ghcr.io/codeforever42/ansible-runner:latest
     container_name: ansible_test
     volumes:
       - .:/ansible
