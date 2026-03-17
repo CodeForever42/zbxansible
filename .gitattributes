@@ -1,2 +1,7 @@
 *.yml text eol=lf
 *.yaml text eol=lf
+netboxinv4win.yml
+all.yml
+ansible.cfg
+docker-compose.yml
+
