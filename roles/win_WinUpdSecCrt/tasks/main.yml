@@ -1,20 +1,29 @@
 ---
 # tasks file for win_WinUpdSecCrt
-- name: Install all security, critical Updates 
-  ansible.windows.win_updates:
-    category_names:
-      - SecurityUpdates
-      - CriticalUpdates
-      - UpdateRollups
-    reboot: False
-    log_path: C:\wUpdLog\ansible_wu.txt
-  register: returned
+- name: Windows Update ve Reboot Planlama Yönetimi
+  block:
+    - name: Install all security, critical Updates
+      ansible.windows.win_updates:
+        category_names:
+          - SecurityUpdates
+          - CriticalUpdates
+          - UpdateRollups
+        reboot: false
+        log_path: C:\wUpdLog\ansible_wu.txt
+      register: returned
 
-- debug:
-    var:
-      returned.reboot_required
+    - name: Normal akışta reboot gerekiyorsa zamanlanmış görevi ekle
+      include_role:
+        name: win_schReboot
+      when: returned.reboot_required | default(false)
 
-- name: Reboot gerekiyorsa Reboot görevi çalıştır
-  include_role:
-    name: win_schReboot
-  when: returned.reboot_required | default(false)
+  rescue:
+    - name: Reboot hatası alındığında zamanlanmış görevi yine de ekle
+      include_role:
+        name: win_schReboot
+      # Eğer hata mesajında "reboot is required" geçiyorsa rolü çalıştır
+      when: ansible_failed_result.msg is search("reboot is required")
+
+    - name: Hatayı görmezden gel ve Zabbix'e başarı gönder
+      debug:
+        msg: "Reboot planlandığı için bu hata Zabbix tarafında 'Success' sayılacak."

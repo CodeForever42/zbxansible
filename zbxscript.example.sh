@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 1. Ayarlar (Zabbix Makrolarından Besleniyor)
-TASK_NAME="Windows_Reboot"
+TASK_NAME="Ansible_TEST1603"
 ZABBIX_SERVER='{$ANSIBLE.SENDER.IP}'
 LOG_DIR="/home/zroot/ansible/logs"
 
@@ -21,15 +21,29 @@ docker run --rm \
   > "$LOG_FILE" 2>&1
 
 EXIT_CODE=$?
+# 1. Log dosyasında "reboot is required" ibaresini ARA (Büyük/Küçük harf duyarsız -i)
+if grep -qi "reboot is required" "$LOG_FILE"; then
+    STATUS="Reboot_Pending"
+    MSG="Reboot Gerekli, Gorev Planlandi"
+    # Bu beklediğimiz bir durum olduğu için Zabbix'e "Sorun Yok" gibi gitsin (Opsiyonel)
+    REAL_EXIT=0
 
-# 3. Sonuç Değerlendirme ve Log Yolunu Budama
-STATUS=$([ $EXIT_CODE -eq 0 ] && echo "Success" || echo "Failed")
-MSG=$([ $EXIT_CODE -eq 0 ] && echo "Islem Basarili" || echo "Hata Alindi!")
+# 2. Eğer reboot mesajı yoksa ve EXIT_CODE sıfır değilse (Gerçek Hata)
+elif [ $EXIT_CODE -ne 0 ]; then
+    STATUS="Failed"
+    MSG="Gercek Bir Hata Alindi!"
+    REAL_EXIT=$EXIT_CODE
+
+# 3. Her şey tertemizse
+else
+    STATUS="Success"
+    MSG="Islem Tamamlandi"
+    REAL_EXIT=0
+fi
+
+# JSON Hazırlama ve Gönderme
 LOG_FILE_NAME=$(basename "$LOG_FILE")
-
-# 4. Ansible Trapper'a Gönder (JSON içinde sadece dosya adı var)
 JSON_OUT="{\"task\":\"$TASK_NAME\", \"status\":\"$STATUS\", \"message\":\"$MSG\", \"log_file\":\"$LOG_FILE_NAME\"}"
 
 zabbix_sender -z $ZABBIX_SERVER -s "{HOST.NAME}" -k ansible.result -o "$JSON_OUT"
-
-exit $EXIT_CODE
+exit $REAL_EXIT
