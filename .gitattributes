@@ -4,4 +4,4 @@ netboxinv4win.yml
 all.yml
 ansible.cfg
 docker-compose.yml
-
+.vault_pass
