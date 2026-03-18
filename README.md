@@ -1,6 +1,12 @@
 ## zbxansible
 Zabbix üzerinden Action script ile Zabbix-Proxy de Ansible taskları çalıştıracağız.
 
+Zabbix hostlarında Inventory kısmı Automatic te olmalı. Manual de ise Makine üzerinden gelen HOSTNAME ile AYNI olmalı.
+Netbox VM veya Device Name i Makine üzerinden gelen HOSTNAME ile AYNI olmalı. 
+Örn:Windowsdaki Makine Adı ile
+
+
+
 #### Docker compose da versiyon uyuşmazlıkları sebebiyle şimdilik kullanım problemli !
 
 example dosyalarını kopyalarak içindeki ayarları yapınız.
