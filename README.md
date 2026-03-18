@@ -1,27 +1,33 @@
-# zbxansible
-some ansible tasks for zabbix
+## zbxansible
+Zabbix üzerinden Action script ile Zabbix-Proxy de Ansible taskları çalıştıracağız.
 
 #### Docker compose da versiyon uyuşmazlıkları sebebiyle şimdilik kullanım problemli !
 
+example dosyalarını kopyalarak içindeki ayarları yapınız.
 
-#### 1.Git clone
+##### 1.Git clone
 ```
 
 ```
 
 
-#### logs klasöründe chmod ve chown unutma!
+##### logs klasöründe chmod ve chown unutma!
 ```
 sudo chown -R zabbix:zabbix path/to/ansible/logs
 chmod -R 775 path/to/ansible/logs
 ```
 
-example dosyalarını kopyalarak içindeki ayarları yapınız.
+##### Zabbix-sender kurmayı unutma !
+```
+apt-get update && apt-get install zabbix-sender -y
+```
 
 
 
 
-#### vault encrypt konteyner içinden çalıştır kopyala ve all.yml ye yapıştır  
+
+
+##### vault encrypt konteyner içinden çalıştır kopyala ve all.yml ye yapıştır  
 ```
 docker exec -it ansible_konteyner_adı bash
 ```
@@ -30,7 +36,12 @@ ansible-vault encrypt_string --vault-password-file .vault_pass 'sifrelenecek_par
 ```
 
 
-#### Update from Git 
+##### Update from Git 
 ```
 
 ```
+
+
+Mustafa KALAYCI 
+@Hikmet Bilgisayar Ltd.Şti. / KONYA
+www.hikmet.com.tr
