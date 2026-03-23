@@ -5,26 +5,29 @@ Zabbix hostlarında Inventory kısmı Automatic te olmalı. Manual de ise Makine
 Netbox VM veya Device Name i Makine üzerinden gelen HOSTNAME ile AYNI olmalı. 
 Örn:Windowsdaki Makine Adı ile
 
-
+##### 1. Docker Image pull
+```
+docker pull ghcr.io/codeforever42/ansible-runner:latest
+```
 
 #### Docker compose da versiyon uyuşmazlıkları sebebiyle şimdilik kullanım problemli !
 
 example dosyalarını kopyalarak içindeki ayarları yapınız.
 
-##### 1.Git clone
+##### 2. Git clone
 ```
 cd /opt
 git clone https://github.com/codeforever42/zbxansible.git ansible
 ```
 
 
-##### logs klasöründe chmod ve chown unutma!
+##### 3. logs klasöründe chmod ve chown unutma!
 ```
 sudo chown -R zabbix:zabbix /opt/ansible/logs
 chmod -R 775 /opt/ansible/logs
 ```
 
-##### Zabbix-sender kurmayı unutma !
+##### 4. Zabbix-sender kurmayı unutma !
 ```
 apt-get update && apt-get install zabbix-sender -y
 ```
@@ -34,7 +37,7 @@ apt-get update && apt-get install zabbix-sender -y
 
 
 
-##### vault encrypt konteyner içinden çalıştır kopyala ve all.yml ye yapıştır  
+##### 5. vault encrypt konteyner içinden çalıştır kopyala ve all.yml ye yapıştır  
 ```
 docker exec -it ansible_konteyner_adı bash
 ```
