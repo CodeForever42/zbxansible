@@ -13,12 +13,13 @@ example dosyalarını kopyalarak içindeki ayarları yapınız.
 
 ##### 1.Git clone
 ```
-
+git clone https://github.com/codeforever42/zbxansible.git ansible
 ```
 
 
 ##### logs klasöründe chmod ve chown unutma!
 ```
+mkdir logs
 sudo chown -R zabbix:zabbix path/to/ansible/logs
 chmod -R 775 path/to/ansible/logs
 ```
