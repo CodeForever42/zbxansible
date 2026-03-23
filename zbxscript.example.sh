@@ -1,10 +1,12 @@
 #!/bin/bash
 
+
 # 1. Ayarlar (Zabbix Makrolarından Besleniyor)
+VERSION="2.0"
 TASK_NAME="Ansible_TEST1603"
 ZABBIX_SERVER='{$ANSIBLE.SENDER.IP}'
 ZABBIX_HOSTNAME="{HOST.NAME}"
-OS_NAME="{INVENTORY.NAME}"
+NBX_NAME="{INVENTORY.ALIAS}"
 LOG_DIR="/home/zroot/ansible/logs"
 echo $OS_NAME
 mkdir -p "$LOG_DIR"
@@ -18,8 +20,8 @@ docker run --rm \
   --entrypoint "" \
   ghcr.io/codeforever42/ansible-runner:latest \
   ansible-playbook win_test_pbook.yml \
-  --limit "$OS_NAME" \
-  -e "target="$OS_NAME" r_after_days={$REBOOT_AFTER_DAYS} r_time={$REBOOT_TIME}" \
+  --limit "$NBX_NAME" \
+  -e "target="$NBX_NAME" r_after_days={$REBOOT_AFTER_DAYS} r_time={$REBOOT_TIME}" \
   > "$LOG_FILE" 2>&1
 
 EXIT_CODE=$?
@@ -47,7 +49,7 @@ fi
 LOG_FILE_NAME=$(basename "$LOG_FILE")
 
 
-JSON_OUT="{\"hostname\":\"{HOST.NAME}\", \"task\":\"$TASK_NAME\", \"status\":\"$STATUS\", \"message\":\"$MSG\", \"log_file\":\"$LOG_FILE_NAME\"}"
+JSON_OUT="{\"hostname\":\"{HOST.NAME}\", \"task\":\"$TASK_NAME\", \"status\":\"$STATUS\", \"message\":\"$MSG\", \"log_file\":\"$LOG_FILE_NAME\", \"scr_version\":\"$VERSION\"}"
 
 
 
