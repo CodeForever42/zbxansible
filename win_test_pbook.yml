@@ -22,5 +22,5 @@
         name: "{{ item }}"
       loop:
         - gen_winPing
-        #- win_WinUpdSecCrt
+        - win_WinUpdSecCrt
         #- win_schReboot
