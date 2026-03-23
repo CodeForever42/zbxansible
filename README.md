@@ -1,16 +1,17 @@
 ## zbxansible
-Zabbix üzerinden Action script ile Zabbix-Proxy de Ansible taskları çalıştıracağız.
+Zabbix üzerinden Action script ile Zabbix-Proxy de Ansible taskları çalıştıracağız.  
+Burada envanter NetBox üzerinden API ile çekilmektedir.
 
-Zabbix hostlarında Inventory kısmı Automatic te olmalı. Manual de ise Makine üzerinden gelen HOSTNAME ile AYNI olmalı.  
-Netbox VM veya Device Name i Makine üzerinden gelen HOSTNAME ile AYNI olmalı. 
-Örn:Windowsdaki Makine Adı ile
+Zabbix hostlarının Inventory kısmında ALIAS alanı NETBOX daki NAME ile AYNI olmalı.  
+Inventory Manuel veya Automatic olduğu durumlarda edit edilebilir!  
+
 
 ##### 1. Docker Image pull
 ```
 docker pull ghcr.io/codeforever42/ansible-runner:latest
 ```
 
-#### Docker compose da versiyon uyuşmazlıkları sebebiyle şimdilik kullanım problemli !
+#### Docker compose versiyon uyuşmazlıkları sebebiyle şimdilik kullanım dışıdır !
 
 example dosyalarını kopyalarak içindeki ayarları yapınız.
 
@@ -39,6 +40,7 @@ apt-get update && apt-get install zabbix-sender -y
 
 ##### 5. vault encrypt konteyner içinden çalıştır kopyala ve all.yml ye yapıştır  
 ```
+# buraya container run eklenecek!!!!
 docker exec -it ansible_konteyner_adı bash
 ```
 ```
