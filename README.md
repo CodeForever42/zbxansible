@@ -13,15 +13,15 @@ example dosyalarını kopyalarak içindeki ayarları yapınız.
 
 ##### 1.Git clone
 ```
+cd /opt
 git clone https://github.com/codeforever42/zbxansible.git ansible
 ```
 
 
 ##### logs klasöründe chmod ve chown unutma!
 ```
-mkdir logs
-sudo chown -R zabbix:zabbix path/to/ansible/logs
-chmod -R 775 path/to/ansible/logs
+sudo chown -R zabbix:zabbix /opt/ansible/logs
+chmod -R 775 /opt/ansible/logs
 ```
 
 ##### Zabbix-sender kurmayı unutma !
@@ -45,7 +45,8 @@ ansible-vault encrypt_string --vault-password-file .vault_pass 'sifrelenecek_par
 
 ##### Update from Git 
 ```
-
+cd /opt/ansible
+git pull
 ```
 
 

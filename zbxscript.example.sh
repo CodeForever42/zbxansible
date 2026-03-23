@@ -7,14 +7,14 @@ TASK_NAME="Ansible_TEST1603"
 ZABBIX_SERVER='{$ANSIBLE.SENDER.IP}'
 ZABBIX_HOSTNAME="{HOST.NAME}"
 NBX_NAME="{INVENTORY.ALIAS}"
-LOG_DIR="/home/zroot/ansible/logs"
+LOG_DIR="/opt/ansible/logs"
 echo $OS_NAME
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/$(date +%Y%m%d_%H%M)_{HOST.NAME}_${TASK_NAME}.log"
 
 # 2. Ansible Çalıştır
 docker run --rm \
-  -v /home/zroot/ansible:/ansible \
+  -v /opt/ansible:/ansible \
   -w /ansible \
   -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
   --entrypoint "" \
