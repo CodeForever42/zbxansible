@@ -23,6 +23,7 @@ EnableRemoteCommands=1
 ##### 1. Docker Image pull
 ```
 docker pull ghcr.io/codeforever42/ansible-runner:latest
+sudo usermod -aG docker zabbix
 ```
 
 #### Docker compose versiyon uyuşmazlıkları sebebiyle şimdilik kullanım dışıdır !
@@ -55,7 +56,7 @@ apt-get update && apt-get install zabbix-sender -y
 
 ##### 5. vault encrypt konteyner içinden çalıştır kopyala ve all.yml ye yapıştır  
 ```
-# buraya container run eklenecek!!!!
+docker compose up -d
 docker exec -it ansible_konteyner_adı bash
 ```
 ```

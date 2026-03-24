@@ -2,9 +2,8 @@
 
 
 # 1. Ayarlar (Zabbix Makrolarından Besleniyor)
-VERSION="2.0"
+VERSION="2.1"
 TASK_NAME="Ansible_TEST1603"
-ZABBIX_SERVER='{$ANSIBLE.SENDER.IP}'
 ZABBIX_HOSTNAME="{HOST.NAME}"
 NBX_NAME="{INVENTORY.ALIAS}"
 LOG_DIR="/opt/ansible/logs"
@@ -25,6 +24,13 @@ docker run --rm \
   > "$LOG_FILE" 2>&1
 
 EXIT_CODE=$?
+
+# 3. Log Temizliği (Sadece son 10 dosya kalsın)
+# ls -t: Tarihe göre sıralar (en yeni en üstte)
+# tail -n +11: İlk 10 dosyayı atla, 11. ve sonrasını seç
+# xargs rm -f: Seçilenleri sil
+ls -t "$LOG_DIR"/*.log 2>/dev/null | tail -n +11 | xargs -r rm -f
+
 # 1. Log dosyasında "reboot is required" ibaresini ARA (Büyük/Küçük harf duyarsız -i)
 if grep -qi "reboot is required" "$LOG_FILE"; then
     STATUS="Reboot_Pending"
@@ -53,5 +59,5 @@ JSON_OUT="{\"hostname\":\"{HOST.NAME}\", \"task\":\"$TASK_NAME\", \"status\":\"$
 
 
 
-zabbix_sender -z $ZABBIX_SERVER -s "$ZABBIX_HOSTNAME" -k ansible.result -o "$JSON_OUT"
+zabbix_sender -z 127.0.0.1 -s "$ZABBIX_HOSTNAME" -k ansible.result -o "$JSON_OUT"
 exit $REAL_EXIT
