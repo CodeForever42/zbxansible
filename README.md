@@ -5,6 +5,20 @@ Burada envanter NetBox üzerinden API ile çekilmektedir.
 Zabbix hostlarının Inventory kısmında ALIAS alanı NETBOX daki NAME ile AYNI olmalı.  
 Inventory Manuel veya Automatic olduğu durumlarda edit edilebilir!  
 
+##### > Proxy config dosyasında EnableRemoteCommand
+```
+ sudo nano /etc/zabbix/zabbix_proxy.conf
+```
+```
+### Option: EnableRemoteCommands
+#               Whether remote commands from Zabbix server are allowed.
+#               0 - not allowed
+#               1 - allowed
+#
+# Mandatory: no
+# Default:
+EnableRemoteCommands=1
+```
 
 ##### 1. Docker Image pull
 ```
@@ -19,6 +33,7 @@ example dosyalarını kopyalarak içindeki ayarları yapınız.
 ```
 cd /opt
 git clone https://github.com/codeforever42/zbxansible.git ansible
+sudo chown -R zabbix:zabbix /opt/ansible
 ```
 
 
