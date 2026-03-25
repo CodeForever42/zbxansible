@@ -9,6 +9,8 @@
           - CriticalUpdates
           - UpdateRollups
         reboot: false
+        async: 3600
+        poll: 30
         log_path: C:\wUpdLog\ansible_wu.txt
       register: returned
 
