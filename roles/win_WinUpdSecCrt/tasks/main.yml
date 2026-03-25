@@ -10,8 +10,8 @@
           - UpdateRollups
         reboot: false
         log_path: C:\wUpdLog\ansible_wu.txt
-      async: 3600
-      poll: 30
+      async: 7200
+      poll: 120
       register: returned
 
     - name: Normal akışta reboot gerekiyorsa zamanlanmış görevi ekle
