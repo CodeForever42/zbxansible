@@ -11,7 +11,7 @@
         reboot: false
         log_path: C:\wUpdLog\ansible_wu.txt
       async: 7200
-      poll: 120
+      poll: 0
       register: returned
 
     - name: Normal akışta reboot gerekiyorsa zamanlanmış görevi ekle
