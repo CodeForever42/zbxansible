@@ -5,7 +5,13 @@
   block:
 
     # ------------------------------------------------------
-    - name: Windows Update job başlat (async, no reboot)
+    - name: Windows Update klasörünü garanti altına al
+      ansible.windows.win_file:
+        path: C:\wUpdLog
+        state: directory
+
+    # ------------------------------------------------------
+    - name: Install security, critical and rollup updates (sync, stabil)
       ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
@@ -13,27 +19,11 @@
           - UpdateRollups
         reboot: false
         log_path: C:\wUpdLog\ansible_wu.txt
-      async: 7200
-      poll: 0
-      register: update_job
-
-    # ------------------------------------------------------
-    - name: Windows Update job sonucu bekleniyor
-      async_status:
-        jid: "{{ update_job.ansible_job_id }}"
-      register: update_result
-      until: update_result.finished
-      retries: 200
-      delay: 30
+      register: returned
       failed_when: false
 
     # ------------------------------------------------------
-    - name: Sonucu normalize et
-      set_fact:
-        returned: "{{ update_result.result | default({}) }}"
-
-    # ------------------------------------------------------
-    - name: Debug çıktısı
+    - name: Update sonucu debug
       debug:
         msg:
           - "Installed: {{ returned.installed_update_count | default(0) }}"
@@ -53,7 +43,7 @@
       include_role:
         name: win_schReboot
       when: >
-        (returned.reboot_required | default(false)) or
+        (returned is defined and returned.reboot_required | default(false)) or
         (ansible_failed_result.msg is defined and
          ansible_failed_result.msg is search("reboot"))
 
@@ -61,11 +51,12 @@
     - name: Hatayı yumuşat (container ölmesin)
       debug:
         msg:
-          - "Windows Update sırasında hata alındı ama işlem devam ediyor."
-          - "Reboot planlandıysa bu durum Zabbix tarafında SUCCESS sayılabilir."
+          - "Windows Update sırasında hata alındı."
+          - "Reboot gerekiyorsa planlandı."
+          - "Bu durum Zabbix tarafında SUCCESS olarak değerlendirilebilir."
 
     # ------------------------------------------------------
-    - name: Hard fail opsiyonel (istersen aç)
+    - name: Hard fail (isteğe bağlı - default kapalı)
       fail:
         msg: "Windows update kritik hata verdi!"
       when: false
