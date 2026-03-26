@@ -1,2 +1,11 @@
 ---
 # defaults file for win_WinUpdSecCrt
+win_update_categories:
+  - SecurityUpdates
+  - CriticalUpdates
+  - UpdateRollups
+win_update_async_timeout: 7200
+win_update_poll_delay: 30
+win_update_poll_retries: 200
+
+win_update_fail_on_error: false

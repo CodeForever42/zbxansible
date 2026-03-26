@@ -1,8 +1,11 @@
 ---
 # tasks file for win_WinUpdSecCrt
+
 - name: Windows Update ve Reboot Planlama Yönetimi
   block:
-    - name: Install all security, critical Updates
+
+    # ------------------------------------------------------
+    - name: Windows Update job başlat (async, no reboot)
       ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
@@ -10,20 +13,59 @@
           - UpdateRollups
         reboot: false
         log_path: C:\wUpdLog\ansible_wu.txt
-      register: returned
+      async: 7200
+      poll: 0
+      register: update_job
 
+    # ------------------------------------------------------
+    - name: Windows Update job sonucu bekleniyor
+      async_status:
+        jid: "{{ update_job.ansible_job_id }}"
+      register: update_result
+      until: update_result.finished
+      retries: 200
+      delay: 30
+      failed_when: false
+
+    # ------------------------------------------------------
+    - name: Sonucu normalize et
+      set_fact:
+        returned: "{{ update_result.result | default({}) }}"
+
+    # ------------------------------------------------------
+    - name: Debug çıktısı
+      debug:
+        msg:
+          - "Installed: {{ returned.installed_update_count | default(0) }}"
+          - "Failed: {{ returned.failed_update_count | default(0) }}"
+          - "Reboot required: {{ returned.reboot_required | default(false) }}"
+
+    # ------------------------------------------------------
     - name: Normal akışta reboot gerekiyorsa zamanlanmış görevi ekle
       include_role:
         name: win_schReboot
       when: returned.reboot_required | default(false)
 
   rescue:
-    - name: Reboot hatası alındığında zamanlanmış görevi yine de ekle
+
+    # ------------------------------------------------------
+    - name: Reboot gerekiyorsa (hata durumunda da) zamanlanmış görevi ekle
       include_role:
         name: win_schReboot
-      # Eğer hata mesajında "reboot is required" geçiyorsa rolü çalıştır
-      when: ansible_failed_result.msg is search("reboot is required")
+      when: >
+        (returned.reboot_required | default(false)) or
+        (ansible_failed_result.msg is defined and
+         ansible_failed_result.msg is search("reboot"))
 
-    - name: Hatayı görmezden gel ve Zabbix'e başarı gönder
+    # ------------------------------------------------------
+    - name: Hatayı yumuşat (container ölmesin)
       debug:
-        msg: "Reboot planlandığı için bu hata Zabbix tarafında 'Success' sayılacak."
+        msg:
+          - "Windows Update sırasında hata alındı ama işlem devam ediyor."
+          - "Reboot planlandıysa bu durum Zabbix tarafında SUCCESS sayılabilir."
+
+    # ------------------------------------------------------
+    - name: Hard fail opsiyonel (istersen aç)
+      fail:
+        msg: "Windows update kritik hata verdi!"
+      when: false
