@@ -1,10 +1,12 @@
 #!/bin/bash
 
-VERSION="1.2"
+VERSION="1.4"
 TASK_NAME="Ans_WrapTest2703"
 ZABBIX_HOSTNAME="{HOST.NAME}"
 NBX_NAME="{INVENTORY.ALIAS}"
 LOG_DIR="/opt/ansible/logs"
+REBOOT_AFTER_DAYS="{$REBOOT_AFTER_DAYS}"
+REBOOT_TIME="{$REBOOT_TIME}"
 
 mkdir -p "$LOG_DIR"
 
@@ -17,6 +19,8 @@ nohup /opt/ansible/worker.sh \
 "$LOG_FILE" \
 "$TASK_NAME" \
 "$VERSION" \
+"$REBOOT_AFTER_DAYS" \
+"$REBOOT_TIME" \
 > /dev/null 2>&1 &
 
 # hemen Zabbix'e "başladı" gönder
