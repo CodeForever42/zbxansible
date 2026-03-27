@@ -11,8 +11,12 @@
     
     
     $dt = (Get-Date).AddDays($days)
-    $dateStr = $dt.ToString((Get-Culture).DateTimeFormat.ShortDatePattern)
+    # $dateStr = $dt.ToString((Get-Culture).DateTimeFormat.ShortDatePattern)
+    $dateStr = $dt.ToString("MM/dd/yyyy")
     
-    # Değişkeni ${time} şeklinde izole ediyoruz ki yanındaki :00 ile karışmasın
-    schtasks /create /tn "Ansible_Reboot" /tr "shutdown.exe /r /f /t 0" /sc once /sd $dateStr /st $time /ru SYSTEM /f
+    # SAATİ GARANTİYE AL: schtasks bazen sadece 02:30 kabul etmez, 02:30:00 ister
+    if ($time -notmatch ':\d{2}:\d{2}$') { $timeStr = "$time:00" } else { $timeStr = $time }
 
+    # Varsa eskiyi sil, yeniyi kur
+    schtasks /delete /tn "Ansible_Reboot" /f 2>$null
+    schtasks /create /tn "Ansible_Reboot" /tr "shutdown.exe /r /f /t 0" /sc once /sd "$dateStr" /st "$timeStr" /ru SYSTEM /f
