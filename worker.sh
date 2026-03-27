@@ -3,9 +3,8 @@
 ZABBIX_HOSTNAME="$1"
 NBX_NAME="$2"
 LOG_FILE="$3"
-
-TASK_NAME="Ansible_TEST1603"
-VERSION="2.4"
+TASK_NAME="$4"
+VERSION="$5"
 
 # 🔥 Ansible çalıştır
 docker run --rm \
