@@ -5,8 +5,10 @@ NBX_NAME="$2"
 LOG_FILE="$3"
 TASK_NAME="$4"
 VERSION="$5"
+REBOOT_AFTER_DAYS="$6"
+REBOOT_TIME="$7"
 
-# 🔥 Ansible çalıştır
+# Ansible çalıştır
 docker run --rm \
 --memory="4g" \
 -v /opt/ansible:/ansible \
@@ -16,12 +18,12 @@ docker run --rm \
 ghcr.io/codeforever42/ansible-runner:1.0 \
 ansible-playbook win_test_pbook.yml \
 --limit "$NBX_NAME" \
--e "target=$NBX_NAME r_after_days={$REBOOT_AFTER_DAYS} r_time={$REBOOT_TIME}" \
+-e "target=$NBX_NAME r_after_days=$REBOOT_AFTER_DAYS r_time=$REBOOT_TIME" \
 > "$LOG_FILE" 2>&1
 
 EXIT_CODE=$?
 
-# 🔥 LOG PARSE
+# LOG PARSE
 
 if grep -qi "Reboot required: True" "$LOG_FILE"; then
     STATUS="Reboot_Pending"
