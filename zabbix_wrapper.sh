@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="2.5"
+VERSION="1.2"
 TASK_NAME="Ans_WrapTest2703"
 ZABBIX_HOSTNAME="{HOST.NAME}"
 NBX_NAME="{INVENTORY.ALIAS}"
@@ -20,7 +20,7 @@ nohup /opt/ansible/worker.sh \
 > /dev/null 2>&1 &
 
 # hemen Zabbix'e "başladı" gönder
-JSON_OUT="{\"hostname\":\"$ZABBIX_HOSTNAME\",\"task\":\"$TASK_NAME\",\"status\":\"Started\",\"log_file\":\"$(basename "$LOG_FILE")\",\"scr_version\":\"$VERSION\"}"
+JSON_OUT="{\"hostname\":\"$ZABBIX_HOSTNAME\",\"task\":\"$TASK_NAME\",\"status\":\"Started\",\"message\":\"Islem Başlatıldı\",\"log_file\":\"$(basename "$LOG_FILE")\",\"scr_version\":\"$VERSION\"}"
 zabbix_sender -z 127.0.0.1 -s "$ZABBIX_HOSTNAME" -k ansible.result -o "$JSON_OUT"
 
 exit 0
