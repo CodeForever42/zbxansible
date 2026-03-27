@@ -18,7 +18,7 @@ docker run --rm \
 ghcr.io/codeforever42/ansible-runner:1.0 \
 ansible-playbook win_test_pbook.yml \
 --limit "$NBX_NAME" \
--e "target=$NBX_NAME r_after_days=$REBOOT_AFTER_DAYS r_time=$REBOOT_TIME" \
+-e "target=$NBX_NAME r_after_days=$REBOOT_AFTER_DAYS r_time=$REBOOT_TIME \
 > "$LOG_FILE" 2>&1
 
 EXIT_CODE=$?
