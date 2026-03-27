@@ -6,17 +6,25 @@
 
 - name: Tek seferlik reboot görevi oluştur
   ansible.windows.win_shell: |
+    # 1. Değişkenleri al ve temizle
     $days = [int]"{{ r_days_val }}"
-    $time = "{{ r_time_val }}"
-    
-    
-    $dt = (Get-Date).AddDays($days)
-    # $dateStr = $dt.ToString((Get-Culture).DateTimeFormat.ShortDatePattern)
-    $dateStr = $dt.ToString("MM/dd/yyyy")
-    
-    # SAATİ GARANTİYE AL: schtasks bazen sadece 02:30 kabul etmez, 02:30:00 ister
-    if ($time -notmatch ':\d{2}:\d{2}$') { $timeStr = "$time:00" } else { $timeStr = $time }
+    $timeInput = "{{ r_time_val }}"
 
-    # Varsa eskiyi sil, yeniyi kur
+    # 2. Zaman Kontrolü: Eğer $timeInput boşsa veya garip bir metinse ({}) 03:00'e çek
+    if ($timeInput -eq "" -or $timeInput -eq "{}") { $timeInput = "03:00" }
+
+    # 3. Saat Formatı: Baştan tanımlıyoruz ki if bloğu dışında da yaşasın
+    $timeStr = $timeInput
+    if ($timeStr -notmatch ':\d{2}:\d{2}$') {
+        $timeStr = "$timeStr:00"
+    }
+
+    # 4. Tarih Formatı: schtasks'ın ana dili (MM/dd/yyyy)
+    $dt = (Get-Date).AddDays($days)
+    $dateStr = $dt.ToString("MM/dd/yyyy")
+
+    # 5. Temizlik ve Kayıt
     schtasks /delete /tn "Ansible_Reboot" /f 2>$null
-    schtasks /create /tn "Ansible_Reboot" /tr "shutdown.exe /r /f /t 0" /sc once /sd "$dateStr" /st "$timeStr" /ru SYSTEM /f
+    
+    # Komutu tırnakları en güvenli haliyle kullanarak gönderiyoruz
+    schtasks /create /tn "Ansible_Reboot" /tr "shutdown.exe /r /f /t 0" /sc once /sd $dateStr /st $timeStr /ru SYSTEM /f
