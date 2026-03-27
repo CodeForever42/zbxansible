@@ -69,7 +69,12 @@ ansible-vault encrypt_string --vault-password-file .vault_pass 'sifrelenecek_par
 cd /opt/ansible
 git pull
 ```
-
+```
+#some tricky for local 
+#not for use remote
+git update-index --chmod=+x worker.sh
+git commit -m "make worker.sh executable"
+```
 
 Mustafa KALAYCI 
 @Hikmet Bilgisayar Ltd.Şti. / KONYA
