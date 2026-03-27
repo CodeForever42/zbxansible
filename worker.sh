@@ -43,14 +43,11 @@ else
     REAL_EXIT=0
 fi
 
-# 🔥 Log temizliği (host bazlı)
 LOG_DIR=$(dirname "$LOG_FILE")
-
 ls -t "$LOG_DIR"/*_"$ZABBIX_HOSTNAME"_*.log 2>/dev/null | tail -n +11 | xargs -r rm -f --
 
-# 🔥 JSON gönder
+# JSON gönder
 LOG_FILE_NAME=$(basename "$LOG_FILE")
-
 JSON_OUT="{\"hostname\":\"$ZABBIX_HOSTNAME\",\"task\":\"$TASK_NAME\",\"status\":\"$STATUS\",\"message\":\"$MSG\",\"log_file\":\"$LOG_FILE_NAME\",\"scr_version\":\"$VERSION\"}"
 
 zabbix_sender -z 127.0.0.1 -s "$ZABBIX_HOSTNAME" -k ansible.result -o "$JSON_OUT"
