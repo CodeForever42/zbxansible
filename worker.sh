@@ -20,7 +20,7 @@ ansible-playbook win_test_pbook.yml \
 --limit "$NBX_NAME" \
 -e "target=$NBX_NAME" \
 -e "r_after_days=$REBOOT_AFTER_DAYS" \
--e " r_time=$REBOOT_TIME" \
+-e "r_time=$REBOOT_TIME" \
 > "$LOG_FILE" 2>&1
 
 EXIT_CODE=$?
