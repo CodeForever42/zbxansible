@@ -9,7 +9,8 @@
     $days = [int]"{{ r_days_val }}"
     $time = "{{ r_time_val }}"
     $dt = (Get-Date).AddDays($days)
-    $dateStr = $dt.ToString((Get-Culture).DateTimeFormat.ShortDatePattern)
+    $dateStr = $dt.ToString("MM/dd/yyyy")
+    # --$dateStr = $dt.ToString((Get-Culture).DateTimeFormat.ShortDatePattern)
     
     # Değişkeni ${time} şeklinde izole ediyoruz ki yanındaki :00 ile karışmasın
     schtasks /create /tn "Ansible_Reboot" /tr "shutdown.exe /r /f /t 0" /sc once /sd $dateStr /st "${time}:00" /ru SYSTEM /f
