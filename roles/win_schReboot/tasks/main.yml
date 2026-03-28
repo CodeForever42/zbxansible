@@ -4,25 +4,25 @@
     r_time_val: "{{ r_time | default('03:00') | trim }}"
 
 - name: Tek seferlik reboot görevi oluştur
-  ansible.windows.win_shell: |
-    # 1. Senin set_fact verilerini içeri alıyoruz
-    $days = [int]{{ r_days_val }}
-    $timeInput = "{{ r_time_val }}"
+  ansible.windows.win_shell: !unsafe |
+    # 1. Değişkenleri Environment üzerinden alıyoruz (En güvenli yol)
+    $days = [int]$env:R_DAYS
+    $timeInput = $env:R_TIME
+
     if ($timeInput -eq "" -or $timeInput -eq "{}") { $timeInput = "03:00" }
 
-    # 2. Saati garantileyelim (02:30 -> 02:30:00)
+    # 2. Saati ayarla
     $timeStr = $timeInput
     if ($timeStr -notmatch ':\d{2}:\d{2}$') { $timeStr = $timeStr + ":00" }
 
-    # 3. KRİTİK NOKTA: Windows o an hangi formatı bekliyorsa ONU buluyoruz
-    # (dd.MM.yyyy mi yoksa MM/dd/yyyy mi? Windows'a soruyoruz)
+    # 3. Formatı Windows'un kendisinden al (Patlama ihtimali sıfır)
     $culture = Get-Culture
     $pattern = $culture.DateTimeFormat.ShortDatePattern
     $dateStr = (Get-Date).AddDays($days).ToString($pattern)
 
-    # 4. Varsa eskiyi temizle
+    # 4. Temizlik ve Kayıt
     schtasks /delete /tn "Ansible_Reboot" /f 2>$null
-
-    # 5. KOMUTU ATEŞLE
-    # Değişkenleri tırnak içinde gönderiyoruz ki boşluk falan filan bozmasın
     schtasks /create /tn "Ansible_Reboot" /tr "shutdown.exe /r /f /t 0" /sc once /sd "$dateStr" /st "$timeStr" /ru SYSTEM /f
+  environment:
+    R_DAYS: "{{ r_days_val }}"
+    R_TIME: "{{ r_time_val }}"
