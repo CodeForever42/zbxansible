@@ -4,21 +4,33 @@
     r_time_val: "{{ r_time | default('03:00') | trim }}"
 
 - name: Tek seferlik reboot görevi oluştur
-  ansible.windows.win_shell: |
-    $days = [int]{{ r_days_val }}
-    $timeInput = "{{ r_time_val }}"
+  ansible.windows.win_powershell:
+    script: |
+      # 1. Değişkenleri al
+      $days = [int]{{ r_days_val }}
+      $timeInput = "{{ r_time_val }}"
 
-    if ($timeInput -eq "" -or $timeInput -eq "{}") { $timeInput = "03:00" }
+      # 2. Boş gelirse 03:00'e çek
+      if ($timeInput -eq "" -or $timeInput -eq "{}") { $timeInput = "03:00" }
 
-    $timeStr = $timeInput
-    if ($timeStr -notmatch ':\d{2}:\d{2}$') {
-        $timeStr = $timeStr + ":00"
-    }
+      # 3. Tarih ve Zamanı gerçek bir 'DateTime' objesine çevir (String kavgası biter)
+      $targetDate = (Get-Date).AddDays($days)
+      if ($timeInput -notmatch ':\d{2}:\d{2}$') { $timeInput = "$timeInput:00" }
+      $ts = [timespan]$timeInput
+      $finalDateTime = $targetDate.Date + $ts
 
-    # TARİH: mm/dd/yyyy
-    $dt = (Get-Date).AddDays($days)
-    $dateStr = $dt.ToString("MM/dd/yyyy")
+      # 4. Varsa eski görevi temizle (Modern yöntemle)
+      Unregister-ScheduledTask -TaskName "Ansible_Reboot" -Confirm:$false -ErrorAction SilentlyContinue
 
-    schtasks /delete /tn "Ansible_Reboot" /f 2>$null
-    
-    schtasks /create /tn "Ansible_Reboot" /tr "shutdown.exe /r /f /t 0" /sc once /sd "$dateStr" /st "$timeStr" /ru SYSTEM /f
+      # 5. Görevi oluştur (Obje tabanlı - Dil/Format seçmez)
+      $action = New-ScheduledTaskAction -Execute "shutdown.exe" -Argument "/r /f /t 0"
+      $trigger = New-ScheduledTaskTrigger -Once -At $finalDateTime
+      $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+      
+      Register-ScheduledTask -TaskName "Ansible_Reboot" -Action $action -Trigger $trigger -Principal $principal -Force
+
+      # 6. Sonucu doğrula (Logda görmek için)
+      return @{
+          "status" = (Get-ScheduledTask -TaskName "Ansible_Reboot").State
+          "scheduled_at" = $finalDateTime.ToString()
+      }
