@@ -3,22 +3,44 @@
     r_days_val: "{{ r_after_days | default(1) | int }}"
     r_time_val: "{{ r_time | default('03:00') | trim }}"
 
-- name: Tek seferlik reboot görevi oluştur
+- name: Tek seferlik reboot görevi oluştur (powershell native)
   ansible.windows.win_shell: |
     $days = [int]{{ r_days_val }}
     $timeInput = "{{ r_time_val }}"
 
-    if ($timeInput -eq "" -or $timeInput -eq "{}") { $timeInput = "03:00" }
-
-    $timeStr = $timeInput
-    if ($timeStr -notmatch ':\d{2}:\d{2}$') {
-        $timeStr = $timeStr + ":00"
+    if ([string]::IsNullOrWhiteSpace($timeInput) -or $timeInput -eq "{}") {
+        $timeInput = "03:00"
     }
 
-    # TARİH: mm/dd/yyyy
-    $dt = (Get-Date).AddDays($days)
-    $dateStr = $dt.ToString("MM/dd/yyyy")
+    # Saat normalize (HH:mm:ss)
+    if ($timeInput -match '^\d{2}:\d{2}$') {
+        $timeInput = "$timeInput`:00"
+    }
 
-    schtasks /delete /tn "Ansible_Reboot" /f 2>$null
-    
-    schtasks /create /tn "Ansible_Reboot" /tr "shutdown.exe /r /f /t 0" /sc once /sd "$dateStr" /st "$timeStr" /ru SYSTEM /f
+    # Tarih + saat birleştir (locale bağımsız)
+    $baseDate = (Get-Date).AddDays($days).ToString("yyyy-MM-dd")
+    $runTime = Get-Date "$baseDate $timeInput"
+
+    $taskName = "Ansible_Reboot"
+
+    # Action
+    $action = New-ScheduledTaskAction -Execute "shutdown.exe" -Argument "/r /f /t 0"
+
+    # Trigger
+    $trigger = New-ScheduledTaskTrigger -Once -At $runTime
+
+    # Principal
+    $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -RunLevel Highest
+
+    # Eğer task varsa sil (senin mevcut mantığı koruduk)
+    if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
+        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+    }
+
+    # Oluştur
+    Register-ScheduledTask `
+        -TaskName $taskName `
+        -Action $action `
+        -Trigger $trigger `
+        -Principal $principal `
+        -Force
